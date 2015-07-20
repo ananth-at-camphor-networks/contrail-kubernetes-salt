@@ -49,7 +49,7 @@
 {% set cluster_dns = "" %}
 {% set cluster_domain = "" %}
 {% if pillar.get('enable_cluster_dns', '').lower() == 'true' %}
-  {% set cluster_dns = "--cluster_dns=" + pillar['dns_server'] %}
+  {% set cluster_dns = "--cluster_dns=" + "10.1.4.53" %}
   {% set cluster_domain = "--cluster_domain=" + pillar['dns_domain'] %}
 {% endif %}
 
