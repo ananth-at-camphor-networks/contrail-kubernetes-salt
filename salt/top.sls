@@ -15,6 +15,7 @@ base:
     - kube-client-tools
     - kubelet
     - kube-proxy
+#   - contrail-vrouter
 {% if pillar.get('enable_node_logging', '').lower() == 'true' and pillar['logging_destination'] is defined %}
   {% if pillar['logging_destination'] == 'elasticsearch' %}
     - fluentd-es
@@ -33,6 +34,11 @@ base:
     - kube-controller-manager
     - kube-scheduler
     - monit
+#   - contrail-analytics
+    - contrail-apiserver
+#   - contrail-controller
+#   - contrail-database
+#   - contrail-vrouter
 {% if grains['cloud'] is defined and not grains.cloud in [ 'aws', 'gce', 'vagrant' ] %}
     - nginx
 {% endif %}
