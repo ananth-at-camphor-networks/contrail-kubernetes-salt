@@ -34,11 +34,14 @@ base:
     - kube-controller-manager
     - kube-scheduler
     - monit
-#   - contrail-analytics
     - contrail-apiserver
-#   - contrail-controller
-#   - contrail-database
-#   - contrail-vrouter
+    - contrail-cassandra
+    - contrail-ifmap-server
+    - contrail-rabbitmq
+    - contrail-schema
+    - contrail-zookeeper
+    - contrail-control
+    - contrail-kube-network-manager
 {% if grains['cloud'] is defined and not grains.cloud in [ 'aws', 'gce', 'vagrant' ] %}
     - nginx
 {% endif %}
