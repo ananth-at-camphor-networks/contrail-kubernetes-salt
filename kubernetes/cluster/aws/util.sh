@@ -655,6 +655,12 @@ function assign-elastic-ip {
   fi
 }
 
+function docker_contrail_setup {
+  # docker_pull_contrail_images
+  cmd='grep source: /srv/salt/contrail-*/* | awk "{print $4}" | xargs -n 1 wget -qO - | grep \"image\": | cut -d "\"" -f 4 | xargs -n1 docker pull'
+  ssh -oStrictHostKeyChecking=no -i "${AWS_SSH_KEY}" "${SSH_USER}@${KUBE_MASTER_IP}" sudo $cmd
+  (cd /etc/kubernetes/manifests && grep source: /srv/salt/contrail-*/* | awk '{print $4}' | xargs -n1 wget -q)
+}
 
 function kube-up {
   echo "Starting cluster using os distro: ${KUBE_OS_DISTRIBUTION}" >&2
@@ -1093,6 +1099,8 @@ function kube-up {
   echo
   echo -e "${color_green}The user name and password to use is located in ${KUBECONFIG}.${color_norm}"
   echo
+
+  # docker_contrail_setup
 }
 
 function kube-down {
