@@ -9,7 +9,7 @@ metadata:
 spec:
   selector:
     k8s-app: kube-ui
-  deprecatedPublicIPs: ["10.1.4.80"]
+  deprecatedPublicIPs: [ {{ pillar['kube_ui_public'] }} ]
   ports:
   - port: 80
     targetPort: 8080
