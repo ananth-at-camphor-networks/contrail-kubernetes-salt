@@ -21,6 +21,7 @@
 KUBE_ROOT=$(dirname "${BASH_SOURCE}")/../..
 source "${KUBE_ROOT}/cluster/aws/${KUBE_CONFIG_FILE-"config-default.sh"}"
 source "${KUBE_ROOT}/cluster/common.sh"
+source "${KUBE_ROOT}/cluster/contrail_networking_setup.sh"
 
 ALLOCATE_NODE_CIDRS=true
 
@@ -655,13 +656,6 @@ function assign-elastic-ip {
   fi
 }
 
-function docker_contrail_setup {
-  # docker_pull_contrail_images
-  cmd='grep source: /srv/salt/contrail-*/* | awk "{print $4}" | xargs -n 1 wget -qO - | grep \"image\": | cut -d "\"" -f 4 | xargs -n1 docker pull'
-  ssh -oStrictHostKeyChecking=no -i "${AWS_SSH_KEY}" "${SSH_USER}@${KUBE_MASTER_IP}" sudo $cmd
-  (cd /etc/kubernetes/manifests && grep source: /srv/salt/contrail-*/* | awk '{print $4}' | xargs -n1 wget -q)
-}
-
 function kube-up {
   echo "Starting cluster using os distro: ${KUBE_OS_DISTRIBUTION}" >&2
 
@@ -751,6 +745,7 @@ function kube-up {
   $AWS_CMD create-route --route-table-id $ROUTE_TABLE_ID --destination-cidr-block 0.0.0.0/0 --gateway-id $IGW_ID > $LOG || true
 
   echo "Using Route Table $ROUTE_TABLE_ID"
+
 
   # Create security groups
   MASTER_SG_ID=$(get_security_group_id "${MASTER_SG_NAME}")
@@ -847,7 +842,6 @@ function kube-up {
     grep -v "^#" "${KUBE_ROOT}/cluster/aws/templates/download-release.sh"
     grep -v "^#" "${KUBE_ROOT}/cluster/aws/templates/salt-master.sh"
   ) > "${KUBE_TEMP}/master-start.sh"
-
   echo "Starting Master"
   master_id=$($AWS_CMD run-instances \
     --image-id $AWS_IMAGE \
@@ -1099,8 +1093,7 @@ function kube-up {
   echo
   echo -e "${color_green}The user name and password to use is located in ${KUBECONFIG}.${color_norm}"
   echo
-
-  # docker_contrail_setup
+  setup_contrail_networking $AWS_SSH_KEY $SSH_USER $KUBE_MASTER_IP
 }
 
 function kube-down {
